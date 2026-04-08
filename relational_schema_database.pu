@@ -1,0 +1,59 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class identity {
+    id: UUID
+}
+
+class account {
+    id: UUID
+    identityId: UUID
+    organization_id: UUID
+}
+
+class organization {
+    id: UUID
+    name: String
+}
+
+class work_slot {
+    id: UUID
+    account_id: UUID
+    name: String
+    start: Timestamp
+    end: Timestamp
+}
+
+class task {
+    id: UUID
+    account_id: UUID
+    name: String
+    description: String
+    complexity: Integer
+    time: Integer
+    type: Enum
+}
+
+class task_dependency {
+    id: UUID
+    task_id: UUID
+    predecessor_task_id: UUID
+}
+
+class scope {
+    id: UUID
+    task_id: UUID
+    begin: Timestamp
+    end: Timestamp
+}
+
+identity "1" -- "N" account
+account "N" -- "1" organization
+work_slot "N" -- "1" account
+task "N" -- "1" account
+scope "N" -- "1" task
+task_dependency "N" -- "1" task : depends
+task_dependency "N" -- "1" task : predecessor
+
+@enduml
