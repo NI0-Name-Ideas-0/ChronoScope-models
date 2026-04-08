@@ -8,14 +8,14 @@ interface "Auth"
 
 SM - [Mail Server]
 
-[Backend] ..> SM : send
+[Backend] ..( SM : send
 
 Auth - [Keycloak]
 
-[Frontend] ..> Auth : redirect
+[Frontend] ..( Auth : redirect
 
-[Keycloak] .> SM : send
+[Keycloak] .( SM : send
 
-[Backend] ..> Auth : verify
+[Backend] ..( Auth : verify
 
 @enduml
