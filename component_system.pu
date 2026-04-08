@@ -1,0 +1,21 @@
+@startuml
+top to bottom direction
+skinparam linetype ortho
+
+interface "SMTP" as SM
+
+interface "Auth"
+
+SM - [Mail Server]
+
+[Backend] ..> SM : send
+
+Auth - [Keycloak]
+
+[Frontend] ..> Auth : redirect
+
+[Keycloak] .> SM : send
+
+[Backend] ..> Auth : verify
+
+@enduml
