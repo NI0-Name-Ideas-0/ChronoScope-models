@@ -1,0 +1,39 @@
+@startuml
+top to bottom direction
+skinparam linetype ortho
+
+interface API
+
+package Controller {
+    [Task Controller]
+    [Planning Controller]
+    [OrganizationSlot Controller]
+}
+
+package Service {
+    [Task Service]
+    [Planning Service]
+    [OrganizationSlot Service]
+}
+
+package Repository {
+    [OrganizationSlot Repository]
+    [Scope Repository]
+    [Task Repository]
+}
+
+database MariaDB {
+
+}
+
+Service --> Repository : calls
+Repository --> Service : returns
+
+Controller --> Service : calls
+Service ---> Controller : returns
+
+Repository <-> MariaDB
+
+API <-- Controller
+
+@enduml
