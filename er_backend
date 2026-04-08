@@ -1,0 +1,73 @@
+@startchen
+skinparam linetype ortho
+
+entity Identity {
+}
+
+entity Account {
+}
+
+entity Organization {
+    Name: String
+}
+
+entity WorkSlot {
+    Name: String
+    Start: Timestamp
+    End: Timestamp
+}
+
+entity Task {
+    Name: String
+    Description: String
+    Complexity: Integer
+    Time: Integer
+    Type: Enum
+}
+
+entity TaskDependency {
+
+}
+
+entity Scope {
+    Begin: Timestamp
+    End: Timestamp
+}
+
+relationship Linked {
+}
+Identity -(1,N)- Linked
+Linked -(1,1)- Account
+
+relationship "Part Of" as PO {
+}
+Account -N- PO
+PO -1- Organization
+
+relationship "Has" as HasSlot {
+}
+Account -1- HasSlot
+HasSlot -N- WorkSlot
+
+relationship "Has" as HasTask {
+}
+Account -1- HasTask
+HasTask -N- Task
+
+relationship "Depends On" as DO {
+}
+relationship "Is Predecessor Of" as IPO {
+}
+TaskDependency -1- DO
+DO -N- Task
+TaskDependency -1- IPO
+IPO -N- Task
+
+relationship "Is split into" as SI {
+}
+Task -1- SI
+SI -N- Scope
+
+
+
+@endchen
