@@ -2,22 +2,30 @@
 skinparam linetype ortho
 
 entity Identity {
+    Id: Integer <<key>>
 }
 
 entity Account {
+    Id: Integer <<key>>
+    IdentityId: Integer <<key>>
+    OrganizationId: Integer <<key>>
 }
 
 entity Organization {
-    Name: String
+    Id: Integer <<key>>
+    Name: String <<key>>
 }
 
 entity WorkSlot {
-    Name: String
-    Start: Timestamp
-    End: Timestamp
+    Id: Integer <<key>>
+    AccountId: Integer
+    Start: Timestamp <<key>>
+    End: Timestamp <<key>>
 }
 
 entity Task {
+    Id: Integer <<key>>
+    AccountId: Integer
     Name: String
     Description: String
     Complexity: Integer
@@ -26,12 +34,16 @@ entity Task {
 }
 
 entity TaskDependency {
-
+    Id: Integer <<key>>
+    TaskId: Integer <<key>>
+    PredecessorId: Integer <<key>>
 }
 
 entity Scope {
-    Begin: Timestamp
-    End: Timestamp
+    Id: Integer <<key>>
+    TaskId: Integer <<key>>
+    Begin: Timestamp <<key>>
+    End: Timestamp <<key>>
 }
 
 relationship Linked {
