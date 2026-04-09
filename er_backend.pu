@@ -57,15 +57,15 @@ entity Scope {
     End: Timestamp <<key>>
 }
 
-relationship "Is Dynamic" as ID {
+relationship "Is A" as ID {
 }
-Task -(0,1)- ID
-ID -(1,1)- DynamicTask
+Task -- ID
+ID -- DynamicTask
 
-relationship "Is Static" as IS {
+relationship "Is A" as IS {
 }
-Task -(0,1)- IS
-IS -(1,1)- StaticTask
+Task -- IS
+IS -- StaticTask
 
 relationship Linked {
 }
