@@ -1,0 +1,61 @@
+@startuml
+|Controller|
+start
+:Read CreateTaskDTO;
+:Validate Parameters;
+note right
+  Typically done automatically by
+  using the required annotations
+end note
+if (DTO valid?) then (yes)
+else (no)
+    :Error response;
+    end
+endif
+|Service|
+:Validate Parameters;
+note right
+  It's important that
+  the service checks parameters too.
+  Such as start < end.
+end note
+if (Parameters valid?) then (yes)
+else (no)
+    :Throw custom exception;
+    |Controller|
+    :Catch custom exception;
+    :Error response;
+    end
+endif
+|Repository|
+:Create Task 
+in database;
+if (Error?) then (yes)
+    |Service|
+    :Forward Task;
+    |Controller|
+    :Return Task;
+else (no)
+    |Repository|
+    :Throws sql exception;
+    note left
+      The repository aka hibernate
+      throws this exception
+    end note
+    |Service|
+    :Catch sql exception;
+    note left
+      We catch the sql exception
+      and wrap it into our custom
+      Exception to provide better
+      seperation between Controller,
+      Service and Repository.
+    end note
+    :Throw custom exception;
+    |Controller|
+    :Catch custom exception;
+    :Error response;
+    end
+endif
+stop
+@enduml
