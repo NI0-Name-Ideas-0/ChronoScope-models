@@ -1,0 +1,22 @@
+@startuml
+activate Components
+activate Service
+Components -> Service : Submit task creation dialogue
+Service -> Backend : Post request task entry/entries creation
+activate Backend
+Backend -> Backend : Create task entry/entries
+Backend -> Service : Return created task entry/entries
+deactivate Backend
+Service -> Backend : Get request algorithm rerun
+activate Backend
+Backend -> Backend : Run algorithm
+Backend -> Service : Return completion status
+deactivate Backend
+Service -> Backend : Get request tasks for relevant time-frame 
+activate Backend
+Backend -> Service : Response
+deactivate Backend
+Service -> Service : Update internal states according to response
+Service -> Components : Notify observers of task changes if applicable
+@enduml
+
