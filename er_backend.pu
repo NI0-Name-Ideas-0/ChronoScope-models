@@ -54,7 +54,7 @@ Linked -(1,1)- Account
 relationship "Part Of" as PO {
 }
 Account -N- PO
-PO -1- Organization
+PO -M- Organization
 
 relationship "Has" as HasSlot {
 }
