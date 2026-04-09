@@ -7,8 +7,31 @@ activate Keycloak
 Keycloak -> "Org-IdP" : redirect
 activate "Org-IdP"
 "Org-IdP" -> "Org-IdP" : authenticate
-"Org-IdP" --> Keycloak : token
+
+alt Authentication Successfull
+
+"Org-IdP" --> Keycloak : info
 deactivate "Org-IdP"
+Keycloak -> Keycloak : token
+deactivate Keycloak
 Keycloak --> Frontend : token
 deactivate Keycloak
+
+activate Backend
+Frontend -> Backend : request data
+activate Keycloak
+Backend -> Keycloak : verify token
+
+alt Token Verified
+Keycloak --> Backend : verified
+Backend --> Frontend : data
+else Token invalid
+Keycloak --> Backend : invalid
+Backend --> Frontend : error
+end
+
+deactivate Backend
+
+end
+
 @enduml
