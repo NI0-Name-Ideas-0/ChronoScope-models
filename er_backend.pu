@@ -7,6 +7,7 @@ entity Identity {
 
 entity Account {
     Id: Integer <<key>>
+    Color: String
     IdentityId: Integer <<key>>
     OrganizationId: Integer <<key>>
 }
@@ -30,19 +31,21 @@ entity Task {
     Description: String
     DynamicTaskId: Integer
     StaticTaskId: Integer
+    RRule: String
 }
 
 entity DynamicTask {
-    Priority: Integer
+    Id: Integer <<key>>
     Difficulty: Integer
     Start: TIMESTAMP
     End: TIMESTMAP
     Duration: Integer
-    Completed: Integer
+    Elapsed: Integer
 }
 
 entity StaticTask {
-  Blocker. BOOLEAN
+  Id: Integer <<key>>
+  Blocker: BOOLEAN
 }
 
 entity TaskDependency {
