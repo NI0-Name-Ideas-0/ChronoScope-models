@@ -1,0 +1,14 @@
+@startuml
+|Controller|
+start
+:Process;
+|Service|
+:Business Logic;
+|Repository|
+:Access Data;
+|Service|
+:Process Data;
+|Controller|
+:Return Data;
+stop
+@enduml
