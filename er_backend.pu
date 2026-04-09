@@ -28,9 +28,8 @@ entity Task {
     AccountId: Integer
     Name: String
     Description: String
-    Complexity: Integer
-    Time: Integer
-    Type: Enum
+    DynamicTaskId: Integer
+    StaticTaskId: Integer
 }
 
 entity DynamicTask {
@@ -38,6 +37,8 @@ entity DynamicTask {
     Difficulty: Integer
     Start: TIMESTAMP
     End: TIMESTMAP
+    Duration: Integer
+    Completed: Integer
 }
 
 entity StaticTask {
