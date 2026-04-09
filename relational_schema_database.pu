@@ -3,53 +3,57 @@ skinparam classAttributeIconSize 0
 skinparam linetype ortho
 
 class identity {
-    id: UUID
+    id: INTEGER
 }
 
 class account {
-    id: UUID
-    identityId: UUID
-    organization_id: UUID
+    id: INTEGER
+    identity_id: INTEGER
 }
 
 class organization {
-    id: UUID
-    name: String
+    id: INTEGER
+    name: VARCHAR(64)
+}
+
+class account_organization {
+    account_id: INTEGER
+    organization_id: INTEGER
 }
 
 class work_slot {
-    id: UUID
-    account_id: UUID
-    name: String
-    start: Timestamp
-    end: Timestamp
+    id: INTEGER
+    account_id: INTEGER
+    start: TIMESTAMP
+    end: TIMESTAMP
 }
 
 class task {
-    id: UUID
-    account_id: UUID
-    name: String
-    description: String
-    complexity: Integer
-    time: Integer
+    id: INTEGER
+    account_id: INTEGER
+    name: VARCHAR(256)
+    description: TEXT
+    complexity: INTEGER
+    time: INTEGER
     type: Enum
 }
 
 class task_dependency {
-    id: UUID
-    task_id: UUID
-    predecessor_task_id: UUID
+    id: INTEGER
+    task_id: INTEGER
+    predecessor_task_id: INTEGER
 }
 
 class scope {
-    id: UUID
-    task_id: UUID
-    begin: Timestamp
-    end: Timestamp
+    id: INTEGER
+    task_id: INTEGER
+    begin: TIMESTAMP
+    end: TIMESTAMP
 }
 
 identity "1" -- "N" account
-account "N" -- "1" organization
+account "1" -- "N" account_organization
+account_organization "N" -- "1" organization
 work_slot "N" -- "1" account
 task "N" -- "1" account
 scope "N" -- "1" task
