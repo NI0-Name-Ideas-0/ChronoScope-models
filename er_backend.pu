@@ -34,6 +34,11 @@ entity Task {
     RRule: String
 }
 
+entity Tag {
+    TaskId: Integer <<key>>
+    Name: String <<key>>
+}
+
 entity DynamicTask {
     Id: Integer <<key>>
     Difficulty: Integer
@@ -85,6 +90,11 @@ relationship "Has" as HasSlot {
 }
 Account -1- HasSlot
 HasSlot -N- WorkSlot
+
+relationship "Has" as HasTag {
+}
+Task -1- HasTag
+HasTag -N- Tag
 
 relationship "Has" as HasTask {
 }
