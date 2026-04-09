@@ -1,0 +1,29 @@
+@startuml
+activate Frontend
+activate Keycloak
+Frontend -> Keycloak : redirect
+Keycloak -> Keycloak : authenticate
+
+alt Authentication Successfull
+
+Keycloak --> Frontend : token
+deactivate Keycloak
+
+activate Backend
+Frontend -> Backend : request data
+activate Keycloak
+Backend -> Keycloak : verify token
+
+alt Token Verified
+Keycloak --> Backend : verified
+Backend --> Frontend : data
+else Token invalid
+Keycloak --> Backend : invalid
+Backend --> Frontend : error
+end
+
+deactivate Backend
+
+end
+
+@enduml
