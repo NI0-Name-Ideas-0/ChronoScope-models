@@ -33,9 +33,20 @@ class task {
     account_id: INTEGER
     name: VARCHAR(256)
     description: TEXT
-    complexity: INTEGER
-    time: INTEGER
-    type: Enum
+    dynamic_task_id: INTEGER
+    static_task_id: INTEGER
+}
+
+class dynamic_task {
+  id: INTEGER
+  complexity: INTEGER
+  priority: INTEGER
+  start: TIMESTAMP
+  end: TIMESTAMP
+}
+
+class static_task {
+  blocker: BOOLEAN
 }
 
 class task_dependency {
@@ -59,5 +70,8 @@ task "N" -- "1" account
 scope "N" -- "1" task
 task_dependency "N" -- "1" task : depends
 task_dependency "N" -- "1" task : predecessor
+
+task "1" -- "1" static_task
+task "1" -- "1" dynamic_task
 
 @enduml
