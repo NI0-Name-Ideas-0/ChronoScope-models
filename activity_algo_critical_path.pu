@@ -1,0 +1,41 @@
+@startuml
+start
+
+partition Critical Path Method {
+  :Iterate tasks;
+  repeat
+    :Get Task;
+    repeat
+      :Get Dependency;
+      if (Dependency Earliest Finish after Task Earliest Start) is (true) then
+        :Set Task Earliest Start to 
+        Dependency Earliest Finish;
+      else (false)
+      :Set Task Earliest Finish to Earliest Start + Duration;
+      endif
+    repeat while (More dependencies?)
+  repeat while (More tasks?)
+  note right
+    Forward pass
+  end note
+  
+  :Iterate tasks reversed;
+  repeat
+    :Get Task;
+    repeat
+      :Get Successor;
+      if (Successor Latest Start before Task Latest Finish) is (true) then
+        :Set Task Latest Finish to 
+        Dependency Latest Start;
+      else (false)
+      :Set Task Latest Start to Latest Finish - Duration;
+      endif
+    repeat while (More successors?)
+  repeat while (More tasks?)
+  note right
+    Backward Pass
+  end note
+}
+
+stop
+@enduml
