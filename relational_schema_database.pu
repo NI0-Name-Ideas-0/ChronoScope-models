@@ -39,10 +39,12 @@ class task {
 
 class dynamic_task {
   id: INTEGER
-  complexity: INTEGER
-  priority: INTEGER
+  difficulty: INTEGER
+  duration: INTEGER
+  completed: INTEGER
   start: TIMESTAMP
   end: TIMESTAMP
+  repeat: INTEGER
 }
 
 class static_task {
