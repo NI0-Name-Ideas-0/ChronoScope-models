@@ -1,0 +1,14 @@
+@startuml
+activate Frontend
+activate Keycloak
+Frontend -> Keycloak : redirect
+Keycloak -> Keycloak : authenticate
+activate Keycloak
+Keycloak -> "Org-IdP" : redirect
+activate "Org-IdP"
+"Org-IdP" -> "Org-IdP" : authenticate
+"Org-IdP" --> Keycloak : token
+deactivate "Org-IdP"
+Keycloak --> Frontend : token
+deactivate Keycloak
+@enduml
