@@ -1,0 +1,43 @@
+@startuml
+
+start
+
+if (Token provided?) then (yes)
+  :Validate Token;
+  
+  if (Token valid?) then (yes)
+    :Token; <<object>>
+    note right
+      The token is a jwt token and
+      contains the needed information
+      (account name, id, email, organization,
+      roles, etc.)
+    end note
+    
+    if (Account exists in database?) then (yes)
+        :Update account details
+        if neccessary;
+    else (no)
+        :Store account
+        with Organization;
+    endif
+    
+    :Store account data in
+    context;
+    note right
+      This is required for
+      controllers / services to
+      be able to access for example
+      account / identity id
+    end note
+  else (no)
+    end
+  endif
+  
+else (no)
+    end
+endif
+
+stop
+
+@enduml
