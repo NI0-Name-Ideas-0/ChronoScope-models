@@ -1,0 +1,27 @@
+@startuml
+
+start
+
+:Enter target E-Mail;
+
+if (Account exists?) then (yes)
+  :Send link E-Mail to target E-Mail
+  with confirmation Link;
+  
+  if (Linkage accepted?) then (yes)
+    :Merge Identities of 
+    the two Accounts;
+    
+    :Send linkage E-Mail
+    to both Accounts;
+  else (no)
+    end
+  endif
+  
+else (no)
+    end
+endif
+
+stop
+
+@enduml
