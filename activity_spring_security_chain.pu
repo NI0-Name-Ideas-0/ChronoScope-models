@@ -15,12 +15,19 @@ if (Token provided?) then (yes)
     end note
     
     if (Account exists in database?) then (yes)
-        :Update account details
-        if neccessary;
     else (no)
-        :Store account
-        with Organization;
+        :Create account with Identity;
     endif
+    
+    partition "Update Organizations" {
+        while (check organizations ?) is (not finished)
+            :Process Organization;
+            if (Organization is linked to account?) then (yes)
+            else (no)
+                :Create Organization-Account Link in Database;
+            endif
+        endwhile (finished)
+    }
     
     :Store account data in
     context;
