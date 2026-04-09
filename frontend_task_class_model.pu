@@ -12,6 +12,7 @@ abstract class Task {
 class AlgoTask {
     startDate : Date
     dueDate : Date
+    timeEstimate : number
     minScopeMinutes : number
     maxScopeMinutes : number
     difficulty : 'trivial' | 'easy' | 'medium' | 'hard'
