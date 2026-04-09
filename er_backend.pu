@@ -33,6 +33,13 @@ entity Task {
     Type: Enum
 }
 
+entity DynamicTask {
+    Priority: Integer
+    Difficulty: Integer
+    Start: TIMESTAMP
+    End: TIMESTMAP
+}
+
 entity TaskDependency {
     Id: Integer <<key>>
     TaskId: Integer <<key>>
@@ -45,6 +52,11 @@ entity Scope {
     Begin: Timestamp <<key>>
     End: Timestamp <<key>>
 }
+
+relationship "Is Dynamic" as ID {
+}
+Task -(0,1)- ID
+ID -(1,1)- DynamicTask
 
 relationship Linked {
 }
