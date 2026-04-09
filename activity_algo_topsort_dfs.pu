@@ -1,0 +1,31 @@
+@startuml
+start
+
+partition Topological Sorting (DFS) {
+  :Create empty list of
+  sorted tasks;
+  :Create list of remaining
+  tasks with all tasks;
+  while (Remaining tasks?) is (not empty)
+    :Get remaining task;
+    
+    partition Visit {
+      if (Is Task already processed?) is (true) then
+      else 
+        if (Is Task marked?) is (true) then
+          end
+        else 
+          :Mark task;
+          repeat
+            :Get Dependency;
+            :Visit Dependency;
+          repeat while (More dependencies?)
+          :Add task to sorted list;
+        endif
+      endif
+    }
+  endwhile (empty)
+}
+
+stop
+@enduml
