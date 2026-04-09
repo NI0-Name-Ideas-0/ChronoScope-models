@@ -1,0 +1,37 @@
+@startuml
+abstract class Task {
+    id : string 
+    title : string
+    description : string
+    startDate : Date
+    dueDate : Date
+    dependencies : Task[]
+    labels : Label[]
+    isFinished : boolean
+}
+
+class AlgoTask {
+    minScopeMinutes : number
+    maxScopeMinutes : number
+    difficulty : 'trivial' | 'easy' | 'medium' | 'hard'
+}
+
+class StaticTask
+
+class Label {
+    id : string
+    name: string
+    color: string
+}
+
+class Scope {
+    id: string
+    start: Date
+    end: Date
+}
+
+Task <|-- AlgoTask
+Task <|-- StaticTask
+Task --> Scope
+Task --> Label
+@enduml
