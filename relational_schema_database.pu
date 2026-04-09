@@ -35,16 +35,22 @@ class task {
     description: TEXT
     dynamic_task_id: INTEGER
     static_task_id: INTEGER
+    rrule: VARCHAR(256)
+}
+
+class tag {
+    id: INTEGER
+    task_id: INTEGER
+    name: VARCHAR(16)
 }
 
 class dynamic_task {
   id: INTEGER
   difficulty: INTEGER
   duration: INTEGER
-  completed: INTEGER
+  elapsed: INTEGER
   start: TIMESTAMP
   end: TIMESTAMP
-  repeat: INTEGER
 }
 
 class static_task {
@@ -64,6 +70,7 @@ class scope {
     end: TIMESTAMP
 }
 
+task "1" -- "N" tag
 identity "1" -- "N" account
 account "1" -- "N" account_organization
 account_organization "N" -- "1" organization
