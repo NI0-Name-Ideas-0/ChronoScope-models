@@ -3,14 +3,15 @@ abstract class Task {
     id : string 
     title : string
     description : string
-    startDate : Date
-    dueDate : Date
     dependencies : Task[]
+    scopes : Scope[]
     labels : Label[]
     isFinished : boolean
 }
 
 class AlgoTask {
+    startDate : Date
+    dueDate : Date
     minScopeMinutes : number
     maxScopeMinutes : number
     difficulty : 'trivial' | 'easy' | 'medium' | 'hard'
