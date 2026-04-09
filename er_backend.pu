@@ -40,6 +40,10 @@ entity DynamicTask {
     End: TIMESTMAP
 }
 
+entity StaticTask {
+  Blocker. BOOLEAN
+}
+
 entity TaskDependency {
     Id: Integer <<key>>
     TaskId: Integer <<key>>
@@ -57,6 +61,11 @@ relationship "Is Dynamic" as ID {
 }
 Task -(0,1)- ID
 ID -(1,1)- DynamicTask
+
+relationship "Is Static" as IS {
+}
+Task -(0,1)- IS
+IS -(1,1)- StaticTask
 
 relationship Linked {
 }
