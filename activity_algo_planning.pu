@@ -1,0 +1,31 @@
+@startuml
+start
+
+partition Plan Tasks {
+  partition Traverse {
+    start
+    :Calculate heuristics for Tasks 
+    with no unproccessed dependencies;
+    repeat
+      :Select next task 
+      with lowest heuristic;
+      :Mark task as processed;
+      :Plan task;
+      if (Task planned) is (true) then
+        :Traverse (recursive);
+        if (Traversal successful) is (true) then
+          break
+        else (false)
+        endif
+      else (false)
+      endif
+    repeat while (Task remaining?)
+  }
+  if (Traversal successful) is (true) then
+  else (false)
+    end
+  endif
+}
+
+stop
+@enduml
