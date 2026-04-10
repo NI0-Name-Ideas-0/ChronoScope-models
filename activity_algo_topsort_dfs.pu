@@ -11,14 +11,15 @@ partition Topological Sorting (DFS) {
     
     partition Visit {
       if (Is Task already processed?) is (true) then
-      else 
+      else (false)
         if (Is Task marked?) is (true) then
+          :Throw cycle exception;
           end
-        else 
+        else  (false)
           :Mark task;
           repeat
             :Get Dependency;
-            :Visit Dependency;
+            :Visit Dependency (recursive);
           repeat while (More dependencies?)
           :Add task to sorted list;
         endif
