@@ -1,0 +1,99 @@
+@startuml
+start
+
+partition Topological Sorting (DFS) {
+  :Create empty list of
+  sorted tasks;
+  :Create list of remaining
+  tasks with all tasks;
+  while (Remaining tasks?) is (not empty)
+    :Get remaining task;
+    
+    partition Visit {
+      if (Is Task already processed?) is (true) then
+      else (false)
+        if (Is Task marked?) is (true) then
+          :Throw cycle exception;
+          end
+        else  (false)
+          :Mark task;
+          repeat
+            :Get Dependency;
+            :Visit Dependency (recursive);
+          repeat while (More dependencies?)
+          :Add task to sorted list;
+        endif
+      endif
+    }
+  endwhile (empty)
+}
+
+:Sorted Tasks; <<object>>
+
+partition Critical Path Method {
+  :Iterate tasks;
+  repeat
+    :Get Task;
+    repeat
+      :Get Dependency;
+      if (Dependency Earliest Finish after Task Earliest Start) is (true) then
+        :Set Task Earliest Start to 
+        Dependency Earliest Finish;
+      else (false)
+      :Set Task Earliest Finish to Earliest Start + Duration;
+      endif
+    repeat while (More dependencies?)
+  repeat while (More tasks?)
+  note right
+    Forward pass
+  end note
+  
+  :Iterate tasks reversed;
+  repeat
+    :Get Task;
+    repeat
+      :Get Successor;
+      if (Successor Latest Start before Task Latest Finish) is (true) then
+        :Set Task Latest Finish to 
+        Dependency Latest Start;
+      else (false)
+      :Set Task Latest Start to Latest Finish - Duration;
+      endif
+    repeat while (More successors?)
+  repeat while (More tasks?)
+  note right
+    Backward Pass
+  end note
+}
+
+:Critical Paths; <<object>>
+
+partition Plan Tasks {
+  partition Traverse {
+    start
+    :Calculate heuristics for Tasks 
+    with no unproccessed dependencies;
+    repeat
+      :Select next task 
+      with lowest heuristic;
+      :Mark task as processed;
+      :Plan task;
+      if (Task planned) is (true) then
+        :Traverse (recursive);
+        if (Traversal successful) is (true) then
+          break
+        else (false)
+        endif
+      else (false)
+      endif
+    repeat while (Task remaining?)
+    stop
+  }
+  if (Traversal successful) is (true) then
+  else (false)
+    end
+  endif
+}
+
+stop
+@enduml
