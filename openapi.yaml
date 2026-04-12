@@ -1,0 +1,572 @@
+openapi: 3.0.3
+info:
+  title: Chronoscope API
+  version: 1.1.0
+
+servers:
+  - url: https://chronoscope.ni0.team/api/v1
+
+security:
+  - oauth2:
+      - read
+      - write
+
+paths:
+
+  /accounts/{accountid}:
+    get:
+      summary: Get account details (including organizations)
+      parameters:
+        - name: accountid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetailed'
+
+  /identity:
+    get:
+      summary: Retrieve Information about the Identity inside the access token
+      responses:
+        '200':
+          description: Own Identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+
+  /identity/{identityid}/accounts:
+    get:
+      summary: List all accounts for an identity
+      parameters:
+        - name: identityid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
+    post:
+      summary: Request linking this account with another account via email
+      parameters:
+        - name: identityid
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountLinkRequest'
+      responses:
+        '202':
+          description: Link request accepted and email sent
+
+  /identity/{identityid}/accounts/confirm:
+    post:
+      summary: Confirm account linking using token received via email
+      parameters:
+        - name: identityid
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountLinkConfirmRequest'
+      responses:
+        '200':
+          description: Accounts successfully linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLinkResult'
+        '400':
+          description: Invalid or expired token
+
+  /identity/{identityid}/scopes:
+    get:
+      summary: List all scopes for an identity
+      parameters:
+        - name: identityid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of scopes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Scope'
+
+  /identity/{identityid}/tasks:
+    get:
+      summary: List all tasks for an identity (including dependencies)
+      parameters:
+        - name: identityid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+
+  /plan:
+    post:
+      summary: Generate a plan for tasks within available work slots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+      responses:
+        '200':
+          description: Planned work slots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanResponse'
+
+  /tasks:
+    post:
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /tasks/{id}:
+    get:
+      summary: Get task details (including dependencies)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+    put:
+      summary: Update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateRequest'
+      responses:
+        '200':
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+    delete:
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Task deleted
+
+  /tasks/{id}/dependencies:
+    post:
+      summary: Create a new dependency
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDependencyCreateRequest'
+      responses:
+        '201':
+          description: Dependency created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDependency'
+
+  /tasks/{id}/dependencies/{linkid}:
+    delete:
+      summary: Delete a dependency
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: linkid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Dependency deleted
+
+components:
+
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.ni0.team/realms/ni0/protocol/openid-connect/auth
+          tokenUrl: https://auth.ni0.team/realms/ni0/protocol/openid-connect/token
+          scopes:
+            openid: Default
+            profile: Profile Information
+
+  schemas:
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+        identity_id:
+          type: integer
+      required: [id, identity_id]
+
+    AccountDetailed:
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            organizations:
+              type: array
+              items:
+                $ref: '#/components/schemas/Organization'
+
+    AccountLinkConfirmRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT or opaque token received via email
+      required: [token]
+
+    AccountLinkRequest:
+      type: object
+      properties:
+        target_email:
+          type: string
+          format: email
+      required: [target_email]
+
+    AccountLinkResult:
+      type: object
+      properties:
+        source_account_id:
+          type: integer
+        target_account_id:
+          type: integer
+        status:
+          type: string
+          enum: [linked]
+      required: [source_account_id, target_account_id, status]
+
+    DynamicTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        difficulty:
+          type: integer
+        duration:
+          type: integer
+        elapsed:
+          type: integer
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+      required: [id]
+
+    DynamicTaskCreateRequest:
+      allOf:
+        - type: object
+          required:
+            - difficulty
+            - duration
+          properties:
+            difficulty:
+              type: integer
+            duration:
+              type: integer
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+
+    Identity:
+      type: object
+      properties:
+        id:
+          type: integer
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+      required: [id]
+
+    Organization:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required: [id, name]
+
+    PlanRequest:
+      type: object
+      properties:
+        account_id:
+          type: integer
+      required: [account_id]
+
+    PlanResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/WorkSlot'
+
+    Scope:
+      type: object
+      properties:
+        id:
+          type: integer
+        task_id:
+          type: integer
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+      required: [id, task_id, begin, end]
+
+    StaticTask:
+      type: object
+      properties:
+        blocker:
+          type: boolean
+      required: [blocker]
+
+    StaticTaskCreateRequest:
+      allOf:
+        - type: object
+          required:
+            - blocker
+          properties:
+            blocker:
+              type: boolean
+
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        task_id:
+          type: integer
+        name:
+          type: string
+      required: [id, task_id, name]
+
+    TagCreate:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        dynamic_task:
+          $ref: '#/components/schemas/DynamicTask'
+        static_task:
+          $ref: '#/components/schemas/StaticTask'
+        rrule:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskDependency'
+      required: [id, account_id, name]
+
+    TaskCreateRequest:
+      type: object
+      required:
+        - account_id
+        - name
+        - type
+      properties:
+        account_id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        rrule:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagCreate'
+        type:
+          type: string
+          enum: [dynamic, static]
+
+      oneOf:
+        - $ref: '#/components/schemas/DynamicTaskCreateRequest'
+        - $ref: '#/components/schemas/StaticTaskCreateRequest'
+
+      discriminator:
+        propertyName: type
+        mapping:
+          dynamic: '#/components/schemas/DynamicTaskCreateRequest'
+          static: '#/components/schemas/StaticTaskCreateRequest'
+
+    TaskDependency:
+      type: object
+      properties:
+        id:
+          type: integer
+        task_id:
+          type: integer
+        predecessor_task_id:
+          type: integer
+      required: [id, task_id, predecessor_task_id]
+
+    TaskDependencyCreateRequest:
+      type: object
+      properties:
+        task_id:
+          type: integer
+        predecessor_task_id:
+          type: integer
+      required: [task_id, predecessor_task_id]
+
+    TaskUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        rrule:
+          type: string
+        difficulty:
+          type: integer
+        duration:
+          type: integer
+        elapsed:
+          type: integer
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        blocker:
+          type: boolean
+
+    WorkSlot:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_id:
+          type: integer
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      required: [id, account_id, start, end]
