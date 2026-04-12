@@ -51,19 +51,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Identity'
 
-  /identity/{identityid}/accounts:
+  /identity/accounts:
     get:
       summary: List all accounts for an identity
       description: >
         Returns every account that belongs to the given identity. An identity
         may own multiple accounts (e.g. personal and work). Each account record
         contains its own ID and a back-reference to the owning `identity_id`.
-      parameters:
-        - name: identityid
-          in: path
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: List of accounts
@@ -83,12 +77,6 @@ paths:
         returns HTTP 202 and no body; the recipient must use the
         `POST /identity/{identityid}/accounts/confirm` endpoint to complete the
         link using the token contained in the email.
-      parameters:
-        - name: identityid
-          in: path
-          required: true
-          schema:
-            type: integer
       requestBody:
         required: true
         content:
@@ -99,22 +87,16 @@ paths:
         '202':
           description: Link request accepted and email sent
 
-  /identity/{identityid}/accounts/confirm:
+  /identity/accounts/confirm:
     post:
       summary: Confirm account linking using token received via email
       description: >
         Completes the account-linking flow initiated by
-        `POST /identity/{identityid}/accounts`. The caller submits the
+        `POST /identity/accounts`. The caller submits the
         short-lived token that was delivered by email. On success both accounts
         are permanently linked and the response includes the IDs of both the
         source and target accounts. Returns HTTP 400 if the token is invalid,
         already used, or expired.
-      parameters:
-        - name: identityid
-          in: path
-          required: true
-          schema:
-            type: integer
       requestBody:
         required: true
         content:
@@ -131,7 +113,7 @@ paths:
         '400':
           description: Invalid or expired token
 
-  /identity/{identityid}/scopes:
+  /identity/scopes:
     get:
       summary: List all scopes for an identity
       description: >
@@ -139,12 +121,6 @@ paths:
         identity. A scope constrains a task to a specific time window defined by
         `begin` and `end` timestamps. Scopes are linked to tasks (N-to-1) and
         are used by the planning algorithm to limit when a task may be scheduled.
-      parameters:
-        - name: identityid
-          in: path
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: List of scopes
@@ -155,7 +131,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Scope'
 
-  /identity/{identityid}/tasks:
+  /identity/tasks:
     get:
       summary: List all tasks for an identity (including dependencies)
       description: >
@@ -165,12 +141,6 @@ paths:
         duration, elapsed, optional start/end window) or a `static_task` object
         (with a blocker flag). Tasks may also carry an `rrule` string for
         recurrence according to the iCalendar RFC.
-      parameters:
-        - name: identityid
-          in: path
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: List of tasks
