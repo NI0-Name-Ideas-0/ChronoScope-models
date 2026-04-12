@@ -16,6 +16,11 @@ paths:
   /accounts/{accountid}:
     get:
       summary: Get account details (including organizations)
+      description: >
+        Retrieves detailed information about a specific account identified by
+        `accountid`, including the list of organizations the account belongs to.
+        An account is owned by a single identity and may be a member of multiple
+        organizations (many-to-many via account_organization).
       parameters:
         - name: accountid
           in: path
@@ -33,6 +38,11 @@ paths:
   /identity:
     get:
       summary: Retrieve Information about the Identity inside the access token
+      description: >
+        Returns the identity record associated with the OAuth 2.0 access token
+        provided in the request. The identity is the root entity in the domain
+        model; each identity can own one or more accounts. Use this endpoint to
+        determine the caller's identity ID and the accounts linked to it.
       responses:
         '200':
           description: Own Identity
@@ -44,6 +54,10 @@ paths:
   /identity/{identityid}/accounts:
     get:
       summary: List all accounts for an identity
+      description: >
+        Returns every account that belongs to the given identity. An identity
+        may own multiple accounts (e.g. personal and work). Each account record
+        contains its own ID and a back-reference to the owning `identity_id`.
       parameters:
         - name: identityid
           in: path
@@ -62,6 +76,13 @@ paths:
 
     post:
       summary: Request linking this account with another account via email
+      description: >
+        Initiates the two-step account-linking flow by sending a confirmation
+        email to the address of the target account. The caller supplies the
+        target account's email address (`target_email`). On success the server
+        returns HTTP 202 and no body; the recipient must use the
+        `POST /identity/{identityid}/accounts/confirm` endpoint to complete the
+        link using the token contained in the email.
       parameters:
         - name: identityid
           in: path
@@ -81,6 +102,13 @@ paths:
   /identity/{identityid}/accounts/confirm:
     post:
       summary: Confirm account linking using token received via email
+      description: >
+        Completes the account-linking flow initiated by
+        `POST /identity/{identityid}/accounts`. The caller submits the
+        short-lived token that was delivered by email. On success both accounts
+        are permanently linked and the response includes the IDs of both the
+        source and target accounts. Returns HTTP 400 if the token is invalid,
+        already used, or expired.
       parameters:
         - name: identityid
           in: path
@@ -106,6 +134,11 @@ paths:
   /identity/{identityid}/scopes:
     get:
       summary: List all scopes for an identity
+      description: >
+        Returns every scope record associated with any task owned by the given
+        identity. A scope constrains a task to a specific time window defined by
+        `begin` and `end` timestamps. Scopes are linked to tasks (N-to-1) and
+        are used by the planning algorithm to limit when a task may be scheduled.
       parameters:
         - name: identityid
           in: path
@@ -125,6 +158,13 @@ paths:
   /identity/{identityid}/tasks:
     get:
       summary: List all tasks for an identity (including dependencies)
+      description: >
+        Returns the full list of tasks owned by any account that belongs to the
+        given identity. Each task includes its tags, dependency links, and—
+        depending on its type—either a `dynamic_task` object (with difficulty,
+        duration, elapsed, optional start/end window) or a `static_task` object
+        (with a blocker flag). Tasks may also carry an `rrule` string for
+        recurrence according to the iCalendar RFC.
       parameters:
         - name: identityid
           in: path
@@ -144,6 +184,14 @@ paths:
   /plan:
     post:
       summary: Generate a plan for tasks within available work slots
+      description: >
+        Runs the planning algorithm for the account identified by `account_id`
+        in the request body. The algorithm topologically sorts tasks (respecting
+        predecessor dependencies), evaluates dynamic task difficulty and
+        duration against available work slots (start/end per slot), and assigns
+        tasks to slots. Returns the account's work slots annotated with the
+        tasks scheduled in each one. Static tasks with `blocker: true` act as
+        hard blockers in the schedule.
       requestBody:
         required: true
         content:
@@ -161,6 +209,14 @@ paths:
   /tasks:
     post:
       summary: Create a new task
+      description: >
+        Creates a new task owned by the account specified in `account_id`. The
+        `type` discriminator determines whether the task is `dynamic` (requires
+        `difficulty` and `duration`; optionally a scheduling window via `start`
+        and `end`) or `static` (requires a `blocker` boolean). An optional
+        `rrule` field (iCalendar recurrence rule) makes the task repeating.
+        Tags can be supplied inline at creation time. The created task is
+        returned with HTTP 201.
       requestBody:
         required: true
         content:
@@ -178,6 +234,11 @@ paths:
   /tasks/{id}:
     get:
       summary: Get task details (including dependencies)
+      description: >
+        Retrieves a single task by its numeric ID. The response includes the
+        task's name, description, optional recurrence rule (`rrule`), tags, all
+        predecessor dependency links, and either a `dynamic_task` or
+        `static_task` sub-object depending on the task's type.
       parameters:
         - name: id
           in: path
@@ -194,6 +255,13 @@ paths:
 
     put:
       summary: Update a task
+      description: >
+        Partially updates an existing task identified by `id`. Clients may
+        supply any subset of updatable fields: `name`, `description`, `rrule`
+        (recurrence rule), and dynamic-task fields (`difficulty`, `duration`,
+        `elapsed`, `start`, `end`) or the static-task field (`blocker`).
+        Fields omitted from the request body are left unchanged. Returns the
+        full updated task on success.
       parameters:
         - name: id
           in: path
@@ -216,6 +284,11 @@ paths:
 
     delete:
       summary: Delete a task
+      description: >
+        Permanently deletes the task identified by `id`, along with all
+        associated tags, dependency links (both where it is the dependent task
+        and where it is the predecessor), scopes, and the linked dynamic_task or
+        static_task sub-record. Returns HTTP 204 with no body on success.
       parameters:
         - name: id
           in: path
@@ -229,6 +302,13 @@ paths:
   /tasks/{id}/dependencies:
     post:
       summary: Create a new dependency
+      description: >
+        Declares that the task identified by the path parameter `id` depends on
+        a predecessor task (`predecessor_task_id` in the request body). The
+        dependency is directional: `predecessor_task_id` must be completed
+        before the dependent task (`task_id`) can be scheduled. Both `task_id`
+        and `predecessor_task_id` must already exist and belong to the same
+        account. Returns the created `TaskDependency` record with HTTP 201.
       parameters:
         - name: id
           in: path
@@ -252,6 +332,11 @@ paths:
   /tasks/{id}/dependencies/{linkid}:
     delete:
       summary: Delete a dependency
+      description: >
+        Removes the dependency link identified by `linkid` from the task
+        identified by `id`. After deletion the predecessor task is no longer
+        required to complete before the dependent task can be scheduled. Returns
+        HTTP 204 with no body on success.
       parameters:
         - name: id
           in: path
