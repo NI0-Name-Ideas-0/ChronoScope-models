@@ -1,30 +1,31 @@
 @startuml
 abstract class Task {
     id : number
+    start : Date
+    end : Date
     title : string
     description : string
-    dependencies : Task[]
+    difficulty : Enum
     scopes : Scope[]
     labels : Label[]
     isFinished : boolean
 }
 
-class AlgoTask {
-    startDate : Date
-    dueDate : Date
-    timeEstimate : number
-    timeElapsed : number
+class DynamicTask {
+    duration : number
+    elapsed : number
     minScopeMinutes : number
     maxScopeMinutes : number
-    difficulty : Enum
+    dependencies : DynamicTask[]
 }
 
-class StaticTask
+class StaticTask {
+  blocker: boolean
+}
 
 class Label {
     id : number
     name: string
-    color: string
 }
 
 class Scope {
@@ -33,7 +34,7 @@ class Scope {
     end: Date
 }
 
-Task <|-- AlgoTask
+Task <|-- DynamicTask
 Task <|-- StaticTask
 Task --> Scope
 Task --> Label
