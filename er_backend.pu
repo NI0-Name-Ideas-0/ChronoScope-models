@@ -29,19 +29,20 @@ entity Task {
     AccountId: Integer
     Name: String
     Description: String
+    Difficulty: Integer
     DynamicTaskId: Integer
     StaticTaskId: Integer
+    Color: String
     RRule: String
 }
 
-entity Tag {
+entity Label {
     TaskId: Integer <<key>>
     Name: String <<key>>
 }
 
 entity DynamicTask {
     Id: Integer <<key>>
-    Difficulty: Integer
     Start: TIMESTAMP
     End: TIMESTMAP
     Duration: Integer
@@ -91,10 +92,10 @@ relationship "Has" as HasSlot {
 Account -1- HasSlot
 HasSlot -N- WorkSlot
 
-relationship "Has" as HasTag {
+relationship "Has" as HasLabel {
 }
-Task -1- HasTag
-HasTag -N- Tag
+Task -1- HasLabel
+HasLabel -N- Label
 
 relationship "Has" as HasTask {
 }
