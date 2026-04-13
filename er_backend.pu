@@ -30,6 +30,8 @@ entity Task {
     Name: String
     Description: String
     Difficulty: Integer
+    Start: TIMESTAMP
+    End: TIMESTMAP
     DynamicTaskId: Integer
     StaticTaskId: Integer
     Color: String
@@ -43,10 +45,10 @@ entity Label {
 
 entity DynamicTask {
     Id: Integer <<key>>
-    Start: TIMESTAMP
-    End: TIMESTMAP
     Duration: Integer
     Elapsed: Integer
+    MinScopeDuration: Integer
+    MaxScopeDuration: Integer
 }
 
 entity StaticTask {
@@ -107,9 +109,9 @@ relationship "Depends On" as DO {
 relationship "Is Predecessor Of" as IPO {
 }
 TaskDependency -1- DO
-DO -N- Task
+DO -N- DynamicTask
 TaskDependency -1- IPO
-IPO -N- Task
+IPO -N- DynamicTask
 
 relationship "Is split into" as SI {
 }
