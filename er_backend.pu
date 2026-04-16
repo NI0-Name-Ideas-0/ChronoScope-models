@@ -8,20 +8,20 @@ entity Identity {
 entity Account {
     Id: Integer <<key>>
     Color: String
-    IdentityId: Integer <<key>>
-    OrganizationId: Integer <<key>>
+    IdentityId: Integer
+    OrganizationId: Integer
 }
 
 entity Organization {
     Id: Integer <<key>>
-    Name: String <<key>>
+    Name: String
 }
 
 entity WorkSlot {
     Id: Integer <<key>>
     AccountId: Integer
-    Start: Timestamp <<key>>
-    End: Timestamp <<key>>
+    Start: Timestamp
+    End: Timestamp
 }
 
 entity Task {
@@ -30,8 +30,8 @@ entity Task {
     Name: String
     Description: String
     Difficulty: Integer
-    Start: TIMESTAMP
-    End: TIMESTMAP
+    Start: Timestamp
+    End: Timestamp
     DynamicTaskId: Integer
     StaticTaskId: Integer
     Color: String
@@ -39,8 +39,9 @@ entity Task {
 }
 
 entity Label {
-    TaskId: Integer <<key>>
-    Name: String <<key>>
+    Id: Integer <<key>>
+    TaskId: Integer
+    Name: String
 }
 
 entity DynamicTask {
@@ -52,21 +53,21 @@ entity DynamicTask {
 }
 
 entity StaticTask {
-  Id: Integer <<key>>
-  Blocker: BOOLEAN
+    Id: Integer <<key>>
+    Blocker: Boolean
 }
 
 entity TaskDependency {
     Id: Integer <<key>>
-    TaskId: Integer <<key>>
-    PredecessorId: Integer <<key>>
+    TaskId: Integer
+    PredecessorId: Integer
 }
 
 entity Scope {
     Id: Integer <<key>>
-    TaskId: Integer <<key>>
-    Begin: Timestamp <<key>>
-    End: Timestamp <<key>>
+    TaskId: Integer
+    Begin: Timestamp
+    End: Timestamp
 }
 
 relationship "Is A" as ID {
