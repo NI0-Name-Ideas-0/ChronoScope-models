@@ -5,32 +5,41 @@ skinparam linetype ortho
 interface API
 
 package Controller {
+    [Identity Controller]
+    [Plan Controller]
+    [Scope Controller]
     [Task Controller]
-    [Planning Controller]
-    [OrganizationSlot Controller]
+    [WorkSlot Controller]
 }
 
 package Service {
-    [Task Service]
+    [Account Service]
+    [Identity Service]
     [Planning Service]
-    [OrganizationSlot Service]
+    [Scope Service]
+    [Task Service]
+    [WorkSlot Service]
 }
 
 package Repository {
-    [OrganizationSlot Repository]
+    [Account Repository]
+    [Identity Repository]
+    [Label Repository]
+    [Organization Repository]
     [Scope Repository]
+    [Task Dependency Repository]
     [Task Repository]
+    [WorkSlot Repository]
 }
 
 database MariaDB {
 
 }
 
+Controller --> Service : calls
 Service --> Repository : calls
 Repository --> Service : returns
-
-Controller --> Service : calls
-Service ---> Controller : returns
+Service --> Controller : returns
 
 Repository <-> MariaDB
 
