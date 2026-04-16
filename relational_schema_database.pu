@@ -33,7 +33,6 @@ class task {
     account_id: INTEGER
     name: VARCHAR(256)
     description: TEXT
-    color: VARCHAR(32)
     difficulty: INTEGER
     start: TIMESTAMP
     end: TIMESTAMP
@@ -57,18 +56,19 @@ class dynamic_task {
 }
 
 class static_task {
-  blocker: BOOLEAN
+    id: INTEGER
+    is_blocker: BOOLEAN
 }
 
 class task_dependency {
     id: INTEGER
-    task_id: INTEGER
-    predecessor_task_id: INTEGER
+    dynamic_task_id: INTEGER
+    predecessor_dynamic_task_id: INTEGER
 }
 
 class scope {
     id: INTEGER
-    task_id: INTEGER
+    dynamic_task_id: INTEGER
     begin: TIMESTAMP
     end: TIMESTAMP
 }
@@ -79,9 +79,9 @@ account "1" -- "N" account_organization
 account_organization "N" -- "1" organization
 work_slot "N" -- "1" account
 task "N" -- "1" account
-scope "N" -- "1" task
-task_dependency "N" -- "1" task : depends
-task_dependency "N" -- "1" task : predecessor
+scope "N" -- "1" dynamic_task
+task_dependency "N" -- "1" dynamic_task : depends
+task_dependency "N" -- "1" dynamic_task : predecessor
 
 task "1" -- "1" static_task
 task "1" -- "1" dynamic_task

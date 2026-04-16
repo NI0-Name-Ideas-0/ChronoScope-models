@@ -3,24 +3,24 @@ abstract class Task {
     id : number
     start : Date
     end : Date
-    title : string
+    name : string
     description : string
-    difficulty : Enum
-    scopes : Scope[]
+    difficulty : number
+    rrule : string
     labels : Label[]
-    isFinished : boolean
 }
 
 class DynamicTask {
     duration : number
     elapsed : number
-    minScopeMinutes : number
-    maxScopeMinutes : number
+    minScopeDuration : number
+    maxScopeDuration : number
+    scopes : Scope[]
     dependencies : DynamicTask[]
 }
 
 class StaticTask {
-  blocker: boolean
+  isBlocker: boolean
 }
 
 class Label {
@@ -30,12 +30,12 @@ class Label {
 
 class Scope {
     id: number
-    start: Date
+    begin: Date
     end: Date
 }
 
 Task <|-- DynamicTask
 Task <|-- StaticTask
-Task --> Scope
 Task --> Label
+DynamicTask --> Scope
 @enduml

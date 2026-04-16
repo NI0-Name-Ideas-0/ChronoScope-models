@@ -7,9 +7,7 @@ entity Identity {
 
 entity Account {
     Id: Integer <<key>>
-    Color: String
     IdentityId: Integer
-    OrganizationId: Integer
 }
 
 entity Organization {
@@ -34,7 +32,6 @@ entity Task {
     End: Timestamp
     DynamicTaskId: Integer
     StaticTaskId: Integer
-    Color: String
     RRule: String
 }
 
@@ -54,18 +51,18 @@ entity DynamicTask {
 
 entity StaticTask {
     Id: Integer <<key>>
-    Blocker: Boolean
+    IsBlocker: Boolean
 }
 
 entity TaskDependency {
     Id: Integer <<key>>
-    TaskId: Integer
-    PredecessorId: Integer
+    DynamicTaskId: Integer
+    PredecessorDynamicTaskId: Integer
 }
 
 entity Scope {
     Id: Integer <<key>>
-    TaskId: Integer
+    DynamicTaskId: Integer
     Begin: Timestamp
     End: Timestamp
 }
@@ -116,7 +113,7 @@ IPO -N- DynamicTask
 
 relationship "Is split into" as SI {
 }
-Task -1- SI
+DynamicTask -1- SI
 SI -N- Scope
 
 
