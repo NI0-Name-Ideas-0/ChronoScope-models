@@ -24,8 +24,8 @@ class account_organization {
 class work_slot {
     id: INTEGER
     account_id: INTEGER
-    start: TIMESTAMP
-    end: TIMESTAMP
+    start_at: TIMESTAMP
+    end_at: TIMESTAMP
 }
 
 class task {
@@ -34,8 +34,8 @@ class task {
     name: VARCHAR(256)
     description: TEXT
     difficulty: INTEGER
-    start: TIMESTAMP
-    end: TIMESTAMP
+    start_at: TIMESTAMP
+    end_at: TIMESTAMP
     dynamic_task_id: INTEGER
     static_task_id: INTEGER
     rrule: VARCHAR(256)
@@ -69,8 +69,8 @@ class task_dependency {
 class scope {
     id: INTEGER
     dynamic_task_id: INTEGER
-    begin: TIMESTAMP
-    end: TIMESTAMP
+    start_at: TIMESTAMP
+    end_at: TIMESTAMP
 }
 
 task "1" -- "N" label

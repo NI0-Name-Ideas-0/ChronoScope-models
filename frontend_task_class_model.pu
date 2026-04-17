@@ -1,8 +1,8 @@
 @startuml
 abstract class Task {
     id : number
-    start : Date
-    end : Date
+    startAt : Date
+    endAt : Date
     name : string
     description : string
     difficulty : number
@@ -30,8 +30,8 @@ class Label {
 
 class Scope {
     id: number
-    begin: Date
-    end: Date
+    startAt: Date
+    endAt: Date
 }
 
 Task <|-- DynamicTask

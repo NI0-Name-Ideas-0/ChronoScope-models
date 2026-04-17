@@ -18,8 +18,8 @@ entity Organization {
 entity WorkSlot {
     Id: Integer <<key>>
     AccountId: Integer
-    Start: Timestamp
-    End: Timestamp
+    StartAt: Timestamp
+    EndAt: Timestamp
 }
 
 entity Task {
@@ -28,8 +28,8 @@ entity Task {
     Name: String
     Description: String
     Difficulty: Integer
-    Start: Timestamp
-    End: Timestamp
+    StartAt: Timestamp
+    EndAt: Timestamp
     DynamicTaskId: Integer
     StaticTaskId: Integer
     RRule: String
@@ -63,8 +63,8 @@ entity TaskDependency {
 entity Scope {
     Id: Integer <<key>>
     DynamicTaskId: Integer
-    Begin: Timestamp
-    End: Timestamp
+    StartAt: Timestamp
+    EndAt: Timestamp
 }
 
 relationship "Is A" as ID {
