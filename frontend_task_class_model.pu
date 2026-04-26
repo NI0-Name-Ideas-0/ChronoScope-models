@@ -1,6 +1,8 @@
 @startuml
 abstract class Task {
     id : number
+    accountId : number
+    organizationId : number
     startAt : Date
     endAt : Date
     name : string
@@ -16,7 +18,8 @@ class DynamicTask {
     minScopeDuration : number
     maxScopeDuration : number
     scopes : Scope[]
-    dependencies : DynamicTask[]
+    dependencies : number[]
+    dependents : number[]
 }
 
 class StaticTask {
@@ -25,11 +28,13 @@ class StaticTask {
 
 class Label {
     id : number
+    taskId : number
     name: string
 }
 
 class Scope {
     id: number
+    dynamicTaskId: number
     startAt: Date
     endAt: Date
 }
@@ -38,4 +43,5 @@ Task <|-- DynamicTask
 Task <|-- StaticTask
 Task --> Label
 DynamicTask --> Scope
+DynamicTask --> DynamicTask : dependencies/dependents
 @enduml

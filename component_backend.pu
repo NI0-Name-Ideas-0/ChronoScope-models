@@ -27,7 +27,6 @@ package Repository {
     [Label Repository]
     [Organization Repository]
     [Scope Repository]
-    [Task Dependency Repository]
     [Task Repository]
     [WorkSlot Repository]
 }

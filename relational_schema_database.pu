@@ -3,74 +3,75 @@ skinparam classAttributeIconSize 0
 skinparam linetype ortho
 
 class identity {
-    id: INTEGER
+    id: BIGINT <<PK>>
 }
 
 class account {
-    id: INTEGER
-    identity_id: INTEGER
+    id: BIGINT <<PK>>
+    subject: VARCHAR(255) <<UNIQUE, NOT NULL>>
+    identity_id: BIGINT <<FK, NOT NULL>>
 }
 
 class organization {
-    id: INTEGER
-    name: VARCHAR(64)
+    id: BIGINT <<PK>>
+    name: VARCHAR(255) <<UNIQUE, NOT NULL>>
 }
 
 class account_organization {
-    account_id: INTEGER
-    organization_id: INTEGER
+    account_id: BIGINT <<PK, FK>>
+    organization_id: BIGINT <<PK, FK>>
 }
 
 class work_slot {
-    id: INTEGER
-    account_id: INTEGER
-    start_at: TIMESTAMP
-    end_at: TIMESTAMP
+    id: BIGINT <<PK>>
+    account_id: BIGINT <<FK>>
+    organization_id: BIGINT <<FK>>
+    start_at: TIMESTAMP <<NOT NULL>>
+    end_at: TIMESTAMP <<NOT NULL>>
 }
 
 class task {
-    id: INTEGER
-    account_id: INTEGER
-    name: VARCHAR(256)
-    description: TEXT
-    difficulty: INTEGER
-    start_at: TIMESTAMP
-    end_at: TIMESTAMP
-    dynamic_task_id: INTEGER
-    static_task_id: INTEGER
-    rrule: VARCHAR(256)
+    id: BIGINT <<PK>>
+    dtype: VARCHAR(31)
+    account_id: BIGINT <<FK>>
+    organization_id: BIGINT <<FK, NOT NULL>>
+    name: VARCHAR(255) <<NOT NULL>>
+    description: VARCHAR(255) <<NOT NULL>>
+    difficulty: INTEGER <<NOT NULL>>
+    start_at: TIMESTAMP <<NOT NULL>>
+    end_at: TIMESTAMP <<NOT NULL>>
+    rrule: VARCHAR(255) <<NOT NULL>>
 }
 
 class label {
-    id: INTEGER
-    task_id: INTEGER
-    name: VARCHAR(16)
+    id: BIGINT <<PK>>
+    task_id: BIGINT <<FK>>
+    name: VARCHAR(255) <<NOT NULL>>
 }
 
 class dynamic_task {
-  id: INTEGER
-  duration: INTEGER
-  elapsed: INTEGER
-  min_scope_duration: INTEGER
-  max_scope_duration: INTEGER
+  id: BIGINT <<PK, FK>>
+  duration: BIGINT <<NOT NULL>>
+  elapsed: BIGINT <<NOT NULL>>
+  min_scope_duration: BIGINT <<NOT NULL>>
+  max_scope_duration: BIGINT <<NOT NULL>>
 }
 
 class static_task {
-    id: INTEGER
-    is_blocker: BOOLEAN
+    id: BIGINT <<PK, FK>>
+    is_blocker: BOOLEAN <<NOT NULL>>
 }
 
-class task_dependency {
-    id: INTEGER
-    dynamic_task_id: INTEGER
-    predecessor_dynamic_task_id: INTEGER
+class task_relation {
+    dependent_id: BIGINT <<PK, FK>>
+    dependency_id: BIGINT <<PK, FK>>
 }
 
 class scope {
-    id: INTEGER
-    dynamic_task_id: INTEGER
-    start_at: TIMESTAMP
-    end_at: TIMESTAMP
+    id: BIGINT <<PK>>
+    dynamic_task_id: BIGINT <<FK>>
+    start_at: TIMESTAMP <<NOT NULL>>
+    end_at: TIMESTAMP <<NOT NULL>>
 }
 
 task "1" -- "N" label
@@ -78,12 +79,14 @@ identity "1" -- "N" account
 account "1" -- "N" account_organization
 account_organization "N" -- "1" organization
 work_slot "N" -- "1" account
+work_slot "N" -- "1" organization
 task "N" -- "1" account
+task "N" -- "1" organization
 scope "N" -- "1" dynamic_task
-task_dependency "N" -- "1" dynamic_task : depends
-task_dependency "N" -- "1" dynamic_task : predecessor
+task_relation "N" -- "1" dynamic_task : dependent
+task_relation "N" -- "1" dynamic_task : dependency
 
-task "1" -- "1" static_task
-task "1" -- "1" dynamic_task
+task "1" -- "0..1" static_task
+task "1" -- "0..1" dynamic_task
 
 @enduml

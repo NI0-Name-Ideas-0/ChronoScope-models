@@ -1,61 +1,70 @@
 @startuml
 |Controller|
 start
-:Read CreateTaskDTO;
-:Validate Parameters;
-note right
-  Typically done automatically by
-  using the required annotations
-end note
-if (DTO valid?) then (yes)
+:Receive TaskCreateRequest;
+:Validate request body;
+
+if (Request valid?) then (yes)
 else (no)
-    :Error response;
+    :Return validation error;
     end
 endif
-|Service|
-:Validate Parameters;
-note right
-  It's important that
-  the service checks parameters too.
-  Such as start < end.
-end note
-if (Parameters valid?) then (yes)
+
+:Resolve authenticated identity
+from RequestContext;
+:Validate account ownership;
+
+if (Account belongs to identity?) then (yes)
 else (no)
-    :Throw custom exception;
-    |Controller|
-    :Catch custom exception;
-    :Error response;
+    :Return access denied error;
     end
 endif
-|Repository|
-:Create Task 
-in database;
-if (Error?) then (yes)
+
+:Resolve organization for account;
+
+if (Account has organization access?) then (yes)
+else (no)
+    :Return organization access error;
+    end
+endif
+
+if (Task type?) then (dynamic)
+    :Map DynamicTaskCreateRequest
+    to DynamicTask;
+    :Attach Account and Organization;
+    :Wire labels to Task;
     |Service|
-    :Forward Task;
-    |Controller|
-    :Return Task;
-else (no)
+    :Validate dynamic dependencies
+    belong to same identity;
+    if (Dependencies valid?) then (yes)
+    else (no)
+        :Throw InvalidRequestException;
+        |Controller|
+        :Return validation error;
+        end
+    endif
     |Repository|
-    :Throws sql exception;
-    note left
-      The repository aka hibernate
-      throws this exception
-    end note
+    :Persist task, labels,
+    and task_relation rows;
     |Service|
-    :Catch sql exception;
-    note left
-      We catch the sql exception
-      and wrap it into our custom
-      Exception to provide better
-      seperation between Controller,
-      Service and Repository.
-    end note
-    :Throw custom exception;
+    :Return DynamicTask;
     |Controller|
-    :Catch custom exception;
-    :Error response;
-    end
+    :Map DynamicTaskResponse;
+else (static)
+    :Map StaticTaskCreateRequest
+    to StaticTask;
+    :Attach Account and Organization;
+    :Wire labels to Task;
+    |Service|
+    :Create static task;
+    |Repository|
+    :Persist task and labels;
+    |Service|
+    :Return StaticTask;
+    |Controller|
+    :Map StaticTaskResponse;
 endif
+
+:Return HTTP 201 with TaskResponse;
 stop
 @enduml

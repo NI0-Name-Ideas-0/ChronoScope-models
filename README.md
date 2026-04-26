@@ -46,9 +46,9 @@ This repository contains architecture and design diagrams for the ChronoScope pr
 
 | File | Description |
 |------|-------------|
-| [er_backend.pu](er_backend.pu) | Chen-notation ER diagram of the backend domain: Identity, Account, Organization, Task, DynamicTask, StaticTask, WorkSlot, Scope, Tag, and TaskDependency. |
+| [er_backend.pu](er_backend.pu) | Chen-notation ER diagram of the backend domain: Identity, Account, Organization, Task, DynamicTask, StaticTask, WorkSlot, Scope, Label, and dynamic-task relations. |
 | [relational_schema_database.pu](relational_schema_database.pu) | Relational schema (UML class notation) showing table structures and foreign-key relationships for the database. |
-| [frontend_task_class_model.pu](frontend_task_class_model.pu) | TypeScript class model used in the frontend: abstract `Task` with `AlgoTask` and `StaticTask` subtypes plus `Scope` and `Label`. |
+| [frontend_task_class_model.pu](frontend_task_class_model.pu) | TypeScript class model used in the frontend: abstract `Task` with `DynamicTask` and `StaticTask` subtypes plus `Scope` and `Label`. |
 
 ---
 

@@ -2,69 +2,70 @@
 skinparam linetype ortho
 
 entity Identity {
-    Id: Integer <<key>>
+    Id: Long <<key>>
 }
 
 entity Account {
-    Id: Integer <<key>>
-    IdentityId: Integer
+    Id: Long <<key>>
+    Subject: String
+    IdentityId: Long
 }
 
 entity Organization {
-    Id: Integer <<key>>
+    Id: Long <<key>>
     Name: String
 }
 
 entity WorkSlot {
-    Id: Integer <<key>>
-    AccountId: Integer
-    StartAt: Timestamp
-    EndAt: Timestamp
+    Id: Long <<key>>
+    AccountId: Long
+    OrganizationId: Long
+    StartAt: Instant
+    EndAt: Instant
 }
 
 entity Task {
-    Id: Integer <<key>>
-    AccountId: Integer
+    Id: Long <<key>>
+    DType: String
+    AccountId: Long
+    OrganizationId: Long
     Name: String
     Description: String
     Difficulty: Integer
-    StartAt: Timestamp
-    EndAt: Timestamp
-    DynamicTaskId: Integer
-    StaticTaskId: Integer
+    StartAt: Instant
+    EndAt: Instant
     RRule: String
 }
 
 entity Label {
-    Id: Integer <<key>>
-    TaskId: Integer
+    Id: Long <<key>>
+    TaskId: Long
     Name: String
 }
 
 entity DynamicTask {
-    Id: Integer <<key>>
-    Duration: Integer
-    Elapsed: Integer
-    MinScopeDuration: Integer
-    MaxScopeDuration: Integer
+    Id: Long <<key>>
+    Duration: Duration
+    Elapsed: Duration
+    MinScopeDuration: Duration
+    MaxScopeDuration: Duration
 }
 
 entity StaticTask {
-    Id: Integer <<key>>
+    Id: Long <<key>>
     IsBlocker: Boolean
 }
 
-entity TaskDependency {
-    Id: Integer <<key>>
-    DynamicTaskId: Integer
-    PredecessorDynamicTaskId: Integer
+entity TaskRelation {
+    DependentId: Long <<key>>
+    DependencyId: Long <<key>>
 }
 
 entity Scope {
-    Id: Integer <<key>>
-    DynamicTaskId: Integer
-    StartAt: Timestamp
-    EndAt: Timestamp
+    Id: Long <<key>>
+    DynamicTaskId: Long
+    StartAt: Instant
+    EndAt: Instant
 }
 
 relationship "Is A" as ID {
@@ -92,6 +93,11 @@ relationship "Has" as HasSlot {
 Account -1- HasSlot
 HasSlot -N- WorkSlot
 
+relationship "Owns Slot" as OwnsSlot {
+}
+Organization -1- OwnsSlot
+OwnsSlot -N- WorkSlot
+
 relationship "Has" as HasLabel {
 }
 Task -1- HasLabel
@@ -102,14 +108,20 @@ relationship "Has" as HasTask {
 Account -1- HasTask
 HasTask -N- Task
 
+relationship "Owns Task" as OwnsTask {
+}
+Organization -1- OwnsTask
+OwnsTask -N- Task
+
 relationship "Depends On" as DO {
 }
-relationship "Is Predecessor Of" as IPO {
-}
-TaskDependency -1- DO
+TaskRelation -1- DO
 DO -N- DynamicTask
-TaskDependency -1- IPO
-IPO -N- DynamicTask
+
+relationship "Is Required By" as IRB {
+}
+TaskRelation -1- IRB
+IRB -N- DynamicTask
 
 relationship "Is split into" as SI {
 }

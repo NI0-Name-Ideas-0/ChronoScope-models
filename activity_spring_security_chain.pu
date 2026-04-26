@@ -9,28 +9,30 @@ if (Token provided?) then (yes)
     :Token; <<object>>
     note right
       The token is a jwt token and
-      contains the needed information
-      (account name, id, email, organization,
-      roles, etc.)
+      contains the subject and
+      organization claims used by
+      the backend account model.
     end note
     
     if (Account exists in database?) then (yes)
     else (no)
-        :Create account with Identity;
+        :Create Account with
+        Identity for subject;
     endif
     
     partition "Update Organizations" {
-        while (check organizations ?) is (not finished)
-            :Process Organization;
-            if (Organization is linked to account?) then (yes)
-            else (no)
-                :Create Organization-Account Link in Database;
-            endif
-        endwhile (finished)
+        :Read organization claim;
+        if (No organizations?) then (yes)
+            :Use private organization;
+        else (no)
+        endif
+        :Find or create Organizations;
+        :Replace Account-Organization
+        links with token organizations;
     }
     
-    :Store account data in
-    context;
+    :Store accountId and identityId
+    in RequestContext;
     note right
       This is required for
       controllers / services to
