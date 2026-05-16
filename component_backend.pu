@@ -6,6 +6,7 @@ interface API
 
 package Controller {
     [Identity Controller]
+    [Organization Controller]
     [Plan Controller]
     [Scope Controller]
     [Task Controller]
@@ -15,6 +16,7 @@ package Controller {
 package Service {
     [Account Service]
     [Identity Service]
+    [Keycloak Service]
     [Planning Service]
     [Scope Service]
     [Task Service]
@@ -23,9 +25,10 @@ package Service {
 
 package Repository {
     [Account Repository]
+    [Identity Organization Color Repository]
     [Identity Repository]
+    [Identity Settings Repository]
     [Label Repository]
-    [Organization Repository]
     [Scope Repository]
     [Task Repository]
     [WorkSlot Repository]
@@ -35,12 +38,16 @@ database MariaDB {
 
 }
 
+cloud Keycloak {
+}
+
 Controller --> Service : calls
 Service --> Repository : calls
 Repository --> Service : returns
 Service --> Controller : returns
 
 Repository <-> MariaDB
+[Keycloak Service] <--> Keycloak : manages
 
 API <-- Controller
 

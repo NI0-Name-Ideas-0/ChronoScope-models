@@ -11,30 +11,41 @@ entity Account {
     IdentityId: Long
 }
 
-entity Organization {
+entity IdentitySettings {
     Id: Long <<key>>
-    Name: String
+    IdentityId: Long
+    Language: String
+    Theme: String
+    WorkSettings: JSON
+}
+
+entity IdentityOrganizationColor {
+    Id: Long <<key>>
+    IdentityId: Long
+    OrganizationId: String
+    Color: ColorToken
 }
 
 entity WorkSlot {
     Id: Long <<key>>
-    AccountId: Long
-    OrganizationId: Long
-    StartAt: Instant
-    EndAt: Instant
+    IdentityId: Long
+    OrganizationId: String
+    DayOfWeek: DayOfWeek
+    StartTime: LocalTime
+    EndTime: LocalTime
 }
 
 entity Task {
     Id: Long <<key>>
     DType: String
-    AccountId: Long
-    OrganizationId: Long
+    IdentityId: Long
+    OrganizationId: String
+    Color: ColorToken
     Name: String
     Description: String
-    Difficulty: Integer
+    Difficulty: Difficulty
     StartAt: Instant
     EndAt: Instant
-    RRule: String
 }
 
 entity Label {
@@ -53,6 +64,7 @@ entity DynamicTask {
 
 entity StaticTask {
     Id: Long <<key>>
+    RRule: String
     IsBlocker: Boolean
 }
 
@@ -83,20 +95,20 @@ relationship Linked {
 Identity -(1,N)- Linked
 Linked -(1,1)- Account
 
-relationship "Part Of" as PO {
+relationship "Has Settings" as HS {
 }
-Account -N- PO
-PO -M- Organization
+Identity -1- HS
+HS -1- IdentitySettings
+
+relationship "Has Color" as HC {
+}
+Identity -1- HC
+HC -N- IdentityOrganizationColor
 
 relationship "Has" as HasSlot {
 }
-Account -1- HasSlot
+Identity -1- HasSlot
 HasSlot -N- WorkSlot
-
-relationship "Owns Slot" as OwnsSlot {
-}
-Organization -1- OwnsSlot
-OwnsSlot -N- WorkSlot
 
 relationship "Has" as HasLabel {
 }
@@ -105,13 +117,8 @@ HasLabel -N- Label
 
 relationship "Has" as HasTask {
 }
-Account -1- HasTask
+Identity -1- HasTask
 HasTask -N- Task
-
-relationship "Owns Task" as OwnsTask {
-}
-Organization -1- OwnsTask
-OwnsTask -N- Task
 
 relationship "Depends On" as DO {
 }
@@ -127,7 +134,5 @@ relationship "Is split into" as SI {
 }
 DynamicTask -1- SI
 SI -N- Scope
-
-
 
 @endchen

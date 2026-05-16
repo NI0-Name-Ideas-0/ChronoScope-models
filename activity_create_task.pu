@@ -10,28 +10,23 @@ else (no)
     end
 endif
 
-:Resolve authenticated identity
-from RequestContext;
-:Validate account ownership;
+:Get identity from RequestContext;
 
-if (Account belongs to identity?) then (yes)
+if (organizationId present?) then (yes)
+    :Validate identity organization
+    access via Keycloak;
+    if (Identity has organization access?) then (yes)
+    else (no)
+        :Return access denied error;
+        end
+    endif
 else (no)
-    :Return access denied error;
-    end
-endif
-
-:Resolve organization for account;
-
-if (Account has organization access?) then (yes)
-else (no)
-    :Return organization access error;
-    end
 endif
 
 if (Task type?) then (dynamic)
     :Map DynamicTaskCreateRequest
     to DynamicTask;
-    :Attach Account and Organization;
+    :Attach Identity and Organization ID;
     :Wire labels to Task;
     |Service|
     :Validate dynamic dependencies
@@ -53,7 +48,7 @@ if (Task type?) then (dynamic)
 else (static)
     :Map StaticTaskCreateRequest
     to StaticTask;
-    :Attach Account and Organization;
+    :Attach Identity and Organization ID;
     :Wire labels to Task;
     |Service|
     :Create static task;

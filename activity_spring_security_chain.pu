@@ -4,45 +4,32 @@ start
 
 if (Token provided?) then (yes)
   :Validate Token;
-  
+
   if (Token valid?) then (yes)
     :Token; <<object>>
     note right
-      The token is a jwt token and
-      contains the subject and
-      organization claims used by
-      the backend account model.
+      The token is a JWT token and
+      contains the subject claim
+      used to identify the account.
     end note
-    
-    if (Account exists in database?) then (yes)
-    else (no)
-        :Create Account with
-        Identity for subject;
-    endif
-    
-    partition "Update Organizations" {
-        :Read organization claim;
-        if (No organizations?) then (yes)
-            :Use private organization;
-        else (no)
-        endif
-        :Find or create Organizations;
-        :Replace Account-Organization
-        links with token organizations;
-    }
-    
-    :Store accountId and identityId
-    in RequestContext;
+
+    :Sync account via AccountService;
     note right
-      This is required for
-      controllers / services to
-      be able to access for example
-      account / identity id
+      Finds existing account by subject,
+      or creates a new Account and
+      Identity if none exists.
+    end note
+
+    :Store account in RequestContext;
+    note right
+      Controllers and services access
+      account and identity through
+      RequestContext.
     end note
   else (no)
     end
   endif
-  
+
 else (no)
     end
 endif

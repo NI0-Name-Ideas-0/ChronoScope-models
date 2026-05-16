@@ -1,14 +1,14 @@
 @startuml
 abstract class Task {
     id : number
-    accountId : number
-    organizationId : number
+    identityId : number
+    organizationId : string
+    color : ColorToken
     startAt : Date
     endAt : Date
     name : string
     description : string
-    difficulty : number
-    rrule : string
+    difficulty : Difficulty
     labels : Label[]
 }
 
@@ -23,25 +23,53 @@ class DynamicTask {
 }
 
 class StaticTask {
-  isBlocker: boolean
+    rrule : string
+    isBlocker : boolean
+}
+
+enum ColorToken {
+    UNSET
+    RED
+    ORANGE
+    AMBER
+    YELLOW
+    GREEN
+    MINT
+    CYAN
+    BLUE
+    INDIGO
+    PURPLE
+    PINK
+    BROWN
+    GRAY
+}
+
+enum Difficulty {
+    TRIVIAL
+    EASY
+    MEDIUM
+    HARD
+    EXTREME
 }
 
 class Label {
     id : number
     taskId : number
-    name: string
+    name : string
 }
 
 class Scope {
-    id: number
-    dynamicTaskId: number
-    startAt: Date
-    endAt: Date
+    id : number
+    dynamicTaskId : number
+    startAt : Date
+    endAt : Date
 }
 
 Task <|-- DynamicTask
 Task <|-- StaticTask
 Task --> Label
+Task --> ColorToken
+Task --> Difficulty
 DynamicTask --> Scope
 DynamicTask --> DynamicTask : dependencies/dependents
 @enduml

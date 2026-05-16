@@ -12,35 +12,42 @@ class account {
     identity_id: BIGINT <<FK, NOT NULL>>
 }
 
-class organization {
+class identity_settings {
     id: BIGINT <<PK>>
-    name: VARCHAR(255) <<UNIQUE, NOT NULL>>
+    identity_id: BIGINT <<FK, UNIQUE, NOT NULL>>
+    language: VARCHAR(10) <<NOT NULL>>
+    theme: VARCHAR(10) <<NOT NULL>>
+    work_settings: TEXT
 }
 
-class account_organization {
-    account_id: BIGINT <<PK, FK>>
-    organization_id: BIGINT <<PK, FK>>
+class identity_organization_color {
+    id: BIGINT <<PK>>
+    identity_id: BIGINT <<FK, NOT NULL>>
+    organization_id: VARCHAR(255) <<NOT NULL>>
+    color: VARCHAR(50) <<NOT NULL>>
+    <<UNIQUE(identity_id, organization_id)>>
 }
 
 class work_slot {
     id: BIGINT <<PK>>
-    account_id: BIGINT <<FK>>
-    organization_id: BIGINT <<FK>>
-    start_at: TIMESTAMP <<NOT NULL>>
-    end_at: TIMESTAMP <<NOT NULL>>
+    identity_id: BIGINT <<FK>>
+    organization_id: VARCHAR(255) <<NOT NULL>>
+    day_of_week: VARCHAR(10) <<NOT NULL>>
+    start_time: TIME <<NOT NULL>>
+    end_time: TIME <<NOT NULL>>
 }
 
 class task {
     id: BIGINT <<PK>>
     dtype: VARCHAR(31)
-    account_id: BIGINT <<FK>>
-    organization_id: BIGINT <<FK, NOT NULL>>
+    identity_id: BIGINT <<FK>>
+    organization_id: VARCHAR(255)
+    color: VARCHAR(50) <<NOT NULL>>
     name: VARCHAR(255) <<NOT NULL>>
     description: VARCHAR(255) <<NOT NULL>>
-    difficulty: INTEGER <<NOT NULL>>
+    difficulty: VARCHAR(50) <<NOT NULL>>
     start_at: TIMESTAMP <<NOT NULL>>
     end_at: TIMESTAMP <<NOT NULL>>
-    rrule: VARCHAR(255) <<NOT NULL>>
 }
 
 class label {
@@ -50,15 +57,16 @@ class label {
 }
 
 class dynamic_task {
-  id: BIGINT <<PK, FK>>
-  duration: BIGINT <<NOT NULL>>
-  elapsed: BIGINT <<NOT NULL>>
-  min_scope_duration: BIGINT <<NOT NULL>>
-  max_scope_duration: BIGINT <<NOT NULL>>
+    id: BIGINT <<PK, FK>>
+    duration: BIGINT <<NOT NULL>>
+    elapsed: BIGINT <<NOT NULL>>
+    min_scope_duration: BIGINT <<NOT NULL>>
+    max_scope_duration: BIGINT <<NOT NULL>>
 }
 
 class static_task {
     id: BIGINT <<PK, FK>>
+    rrule: VARCHAR(255) <<NOT NULL>>
     is_blocker: BOOLEAN <<NOT NULL>>
 }
 
@@ -76,12 +84,10 @@ class scope {
 
 task "1" -- "N" label
 identity "1" -- "N" account
-account "1" -- "N" account_organization
-account_organization "N" -- "1" organization
-work_slot "N" -- "1" account
-work_slot "N" -- "1" organization
-task "N" -- "1" account
-task "N" -- "1" organization
+identity "1" -- "1" identity_settings
+identity "1" -- "N" identity_organization_color
+identity "1" -- "N" work_slot
+identity "1" -- "N" task
 scope "N" -- "1" dynamic_task
 task_relation "N" -- "1" dynamic_task : dependent
 task_relation "N" -- "1" dynamic_task : dependency
