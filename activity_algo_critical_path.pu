@@ -1,39 +1,69 @@
 @startuml
+note
+  CPM is computed recursively per node
+  using remaining (not total) durations.
+  It runs inline during planning as a
+  deadline check, and via CPMDataProvider
+  for task weighting.
+end note
+
 start
 
-partition Critical Path Method {
-  :Iterate tasks;
-  repeat
-    :Get Task;
+partition "Critical Path Method" {
+
+  partition "calcFirstStart (recursive forward pass)" {
+    :Start with default planning time;
+    if (Task has a startAt constraint?) then (yes)
+      :Advance to max(default, startAt);
+    else (no)
+    endif
     repeat
-      :Get Dependency;
-      if (Dependency Earliest Finish after Task Earliest Start) is (true) then
-        :Set Task Earliest Start to 
-        Dependency Earliest Finish;
-      else (false)
-      :Set Task Earliest Finish to Earliest Start + Duration;
+      :Get dependency;
+      if (Dependency in remaining tasks?) then (yes)
+        :Recursively calculate
+        dependency earliest finish;
+        if (Dependency earliest finish
+        after current first start?) then (yes)
+          :Update first start to
+          dependency earliest finish;
+        else (no)
+        endif
+      else (no)
       endif
     repeat while (More dependencies?)
-  repeat while (More tasks?)
-  note right
-    Forward pass
-  end note
-  
-  :Iterate tasks reversed;
-  repeat
-    :Get Task;
+    :Earliest finish =
+    first start + remaining duration;
+  }
+
+  partition "calcLatestFinish (recursive backward pass)" {
+    :Start with Instant.MAX
+    (or task endAt if set);
     repeat
-      :Get Successor;
-      if (Successor Latest Start before Task Latest Finish) is (true) then
-        :Set Task Latest Finish to 
-        Dependency Latest Start;
-      else (false)
-      :Set Task Latest Start to Latest Finish - Duration;
+      :Get successor;
+      if (Successor in remaining tasks?) then (yes)
+        :Recursively calculate
+        successor latest finish;
+        :Successor latest start =
+        successor latest finish
+        - successor remaining duration;
+        if (Successor latest start
+        before current latest finish?) then (yes)
+          :Update latest finish to
+          successor latest start;
+        else (no)
+        endif
+      else (no)
       endif
     repeat while (More successors?)
-  repeat while (More tasks?)
+    :Latest start =
+    latest finish - remaining duration;
+  }
+
+  :Slack = latest start - earliest start;
   note right
-    Backward Pass
+    Negative slack means the deadline
+    cannot be met from the current
+    planning position.
   end note
 }
 

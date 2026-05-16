@@ -1,30 +1,115 @@
 @startuml
 start
 
-partition Plan Tasks {
-  partition Traverse {
-    start
-    :Calculate heuristics for Tasks 
-    with no unproccessed dependencies;
-    repeat
-      :Select next task 
-      with lowest heuristic;
-      :Mark task as processed;
-      :Plan task;
-      if (Task planned) is (true) then
-        :Traverse (recursive);
-        if (Traversal successful) is (true) then
-          break
-        else (false)
-        endif
-      else (false)
-      endif
-    repeat while (Task remaining?)
-  }
-  if (Traversal successful) is (true) then
-  else (false)
-    end
+partition "Algorithm.plan (recursive)" {
+  if (No tasks or no remaining work?) then (yes)
+    :Return empty list;
+    stop
+  else (no)
   endif
+
+  :Run CPM on ready tasks;
+  if (Any task has negative slack?) then (yes)
+    :Return null\n(deadline not met);
+    stop
+  else (no)
+  endif
+
+  :Filter possible tasks;
+  note right
+    - minScopeDuration fits remaining slot time
+    - remaining duration > 0
+    - startAt constraint satisfied
+  end note
+
+  if (No possible tasks?) then (yes)
+    :Advance to next work slot (recursive);
+    stop
+  else (no)
+  endif
+
+  :Calculate weights;
+  note right
+    CPMDataProvider: inverse normalized slack
+    DifficultyDataProvider: deviation from
+    recent planned difficulty
+  end note
+  :Sort candidates descending by
+  combined weight;
+
+  repeat
+    :Select next candidate task;
+
+    :Calculate effectiveStart;
+    note right
+      max(currentTime, task.startAt)
+    end note
+
+    :Calculate scope duration;
+    note right
+      min(remaining task, remaining slot),
+      capped at maxScopeDuration.
+    end note
+
+    :Apply tail guard;
+    note right
+      If leftover after scope would be
+      non-zero but below minScopeDuration,
+      shrink current scope to leave exactly
+      minScopeDuration for the tail.
+      Skip candidate if no valid split exists.
+    end note
+
+    if (Scope < minScopeDuration?) then (yes)
+      :Skip candidate;
+    else (no)
+      :Create Scope(effectiveStart,
+      effectiveStart + scopeDuration);
+      :Subtract scopeDuration from
+      remaining task duration;
+
+      if (Task fully planned?) then (yes)
+        :Remove task from ready set;
+        repeat
+          :Get successor;
+          :Decrement successor
+          dependency count;
+          if (Count reaches 0?) then (yes)
+            :Add successor to ready set;
+          else (no)
+          endif
+        repeat while (More successors?)
+      else (no)
+      endif
+
+      if (All tasks planned?) then (yes)
+        :Return scopes;
+        stop
+      else (no)
+      endif
+
+      if (Slot boundary reached?) then (yes)
+        :Advance to next slot (recursive);
+      else (no)
+        :Recurse in same slot;
+      endif
+
+      if (Recursive call succeeded?) then (yes)
+        :Return scopes;
+        stop
+      else (no)
+        :Backtrack;
+        note right
+          Restore remaining duration.
+          Re-lock successors if task
+          was unlocked.
+        end note
+      endif
+    endif
+  repeat while (More candidates?)
+
+  :All candidates exhausted;
+  :Advance to next work slot (recursive);
 }
 
 stop

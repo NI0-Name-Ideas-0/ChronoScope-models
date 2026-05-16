@@ -1,32 +1,38 @@
 @startuml
+note
+  Topological sorting (DFS) is no longer used.
+  Dependency ordering is implicit: tasks
+  become eligible as their predecessors
+  complete, tracked via dependency counts.
+end note
+
 start
 
-partition Topological Sorting (DFS) {
-  :Create empty list of
-  sorted tasks;
-  :Create list of remaining
-  tasks with all tasks;
-  while (Remaining tasks?) is (not empty)
-    :Get remaining task;
-    
-    partition Visit {
-      if (Is Task already processed?) is (true) then
-      else (false)
-        if (Is Task marked?) is (true) then
-          :Throw cycle exception;
-          end
-        else  (false)
-          :Mark task;
-          repeat
-            :Get Dependency;
-            :Visit Dependency (recursive);
-          repeat while (More dependencies?)
-          :Add task to sorted list;
-        endif
-      endif
-    }
-  endwhile (empty)
+partition "Build Task Graph (PlanningService)" {
+  :Create a TaskGraphNode
+  for each DynamicTask;
+  repeat
+    :Get task node;
+    repeat
+      :Get dependency;
+      :Link dependency node into
+      node's dependencies list;
+    repeat while (More dependencies?)
+    repeat
+      :Get dependent;
+      :Link dependent node into
+      node's dependents list;
+    repeat while (More dependents?)
+    :Count uncompleted
+    dependencies for node;
+    if (Count == 0?) then (yes)
+      :Add to start nodes;
+    else (no)
+    endif
+  repeat while (More tasks?)
 }
+
+:Start Nodes + Dependency Counts; <<object>>
 
 stop
 @enduml

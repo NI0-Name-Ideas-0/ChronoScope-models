@@ -1,99 +1,82 @@
 @startuml
 start
 
-partition Topological Sorting (DFS) {
-  :Create empty list of
-  sorted tasks;
-  :Create list of remaining
-  tasks with all tasks;
-  while (Remaining tasks?) is (not empty)
-    :Get remaining task;
-    
-    partition Visit {
-      if (Is Task already processed?) is (true) then
-      else (false)
-        if (Is Task marked?) is (true) then
-          :Throw cycle exception;
-          end
-        else  (false)
-          :Mark task;
-          repeat
-            :Get Dependency;
-            :Visit Dependency (recursive);
-          repeat while (More dependencies?)
-          :Add task to sorted list;
-        endif
-      endif
-    }
-  endwhile (empty)
+partition "Build Task Graph" {
+  :Convert DynamicTasks to TaskGraphNodes;
+  :Wire dependency and dependent links;
+  :Count uncompleted dependencies per node;
+  :Identify start nodes
+  (zero uncompleted dependencies);
 }
 
-:Sorted Tasks; <<object>>
+:Task Graph; <<object>>
 
-partition Critical Path Method {
-  :Iterate tasks;
-  repeat
-    :Get Task;
-    repeat
-      :Get Dependency;
-      if (Dependency Earliest Finish after Task Earliest Start) is (true) then
-        :Set Task Earliest Start to 
-        Dependency Earliest Finish;
-      else (false)
-      :Set Task Earliest Finish to Earliest Start + Duration;
-      endif
-    repeat while (More dependencies?)
-  repeat while (More tasks?)
+partition "Prepare Planning Inputs" {
+  :Adjust remaining duration for
+  active scope (if present);
   note right
-    Forward pass
+    The in-progress scope duration
+    is subtracted from the task's
+    remaining time.
   end note
-  
-  :Iterate tasks reversed;
-  repeat
-    :Get Task;
-    repeat
-      :Get Successor;
-      if (Successor Latest Start before Task Latest Finish) is (true) then
-        :Set Task Latest Finish to 
-        Dependency Latest Start;
-      else (false)
-      :Set Task Latest Start to Latest Finish - Duration;
-      endif
-    repeat while (More successors?)
-  repeat while (More tasks?)
+  :Expand recurring WorkSlots to
+  ConcreteWorkSlots up to horizon;
   note right
-    Backward Pass
+    Horizon = latest task deadline
+    + 1 week buffer.
   end note
-}
-
-:Critical Paths; <<object>>
-
-partition Plan Tasks {
-  partition Traverse {
-    start
-    :Calculate heuristics for Tasks 
-    with no unproccessed dependencies;
-    repeat
-      :Select next task 
-      with lowest heuristic;
-      :Mark task as processed;
-      :Plan task;
-      if (Task planned) is (true) then
-        :Traverse (recursive);
-        if (Traversal successful) is (true) then
-          break
-        else (false)
-        endif
-      else (false)
-      endif
-    repeat while (Task remaining?)
-    stop
-  }
-  if (Traversal successful) is (true) then
-  else (false)
+  if (No slots in horizon?) then (yes)
+    :Throw InsufficientSlotsException;
     end
+  else (no)
   endif
 }
+
+:ConcreteWorkSlots; <<object>>
+
+partition "Plan Tasks (Backtracking)" {
+  :Run CPM on ready tasks\n(deadline check);
+  if (Any task has negative slack?) then (yes)
+    :Return null;
+    end
+  else (no)
+  endif
+  :Filter eligible tasks for current slot;
+  note right
+    minScopeDuration fits remaining slot,
+    remaining duration > 0,
+    startAt constraint satisfied.
+  end note
+  if (No eligible tasks?) then (yes)
+    :Advance to next slot (recursive);
+  else (no)
+    :Weight by CPM slack
+    and Difficulty balance;
+    :Sort candidates descending by weight;
+    repeat
+      :Calculate and place scope
+      for candidate;
+      note right
+        Capped at maxScopeDuration.
+        Tail guard prevents unschedulable
+        leftover below minScopeDuration.
+      end note
+      :Unlock successors if task complete;
+      :Recurse into next planning step;
+      if (Successful?) then (yes)
+        break
+      else (no)
+        :Backtrack;
+      endif
+    repeat while (More candidates?)
+    if (All candidates exhausted?) then (yes)
+      :Advance to next slot (recursive);
+    else (no)
+    endif
+  endif
+}
+
+:Planned Scopes; <<object>>
 
 stop
 @enduml
